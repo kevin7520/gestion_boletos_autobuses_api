@@ -1,5 +1,6 @@
 ﻿using gestion_boletos_autobuses_api.Models;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -31,6 +32,22 @@ namespace gestion_boletos_autobuses_api.Helpers
 
             return tokenHandler.WriteToken(token);
 
+        }
+        public static int validarToken(HttpContext httpContext)
+        {
+            try
+            {
+                string Jwt = httpContext.Request.Headers[HeaderNames.Authorization];
+                Jwt = Jwt?.Replace("bearer", null)?.Trim();
+                if (string.IsNullOrEmpty(Jwt)) throw new Exception("Token no recibido");
+                var tokenSecure = new JwtSecurityTokenHandler().ReadToken(Jwt) as JwtSecurityToken;
+                int user = Convert.ToInt32(tokenSecure.Payload["nameid"]);
+                return user; // Información adicional
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 }
